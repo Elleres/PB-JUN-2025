@@ -48,7 +48,8 @@ Para configurar o Nginx para reiniciar quando ele parasse, foi recomendado criar
 ![](./fotos/systemctl_edit_nginx.png)
 *Figura 5: Resultado de systemctl edit nginx, com configurações para reinicialização.*
 
-
+        <p>
+        Após esse passo, é necessário dar um reload no daemon do systemctl. Para isso, executamos o comando <b>sudo sys>        </p>
 ## Etapa 3
 
 ### Script para enviar mensagem pelo Telegram
