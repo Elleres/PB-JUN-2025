@@ -7,14 +7,14 @@ Resources:
     Properties:
       ImageId: ami-0d1b5a8c13042c939
       InstanceType: t2.micro
-      KeyName: PB - JUN 2025
-      PropagateTagsToVolumeOnCreation: true
       NetworkInterfaces:
         - AssociatePublicIpAddress: true
           DeviceIndex: '0'
           GroupSet:
             - sg-0ea9b696dfe7b427a
           SubnetId: subnet-0fbc2108830beaee3
+      
+      PropagateTagsToVolumeOnCreation: true
       Tags:
         - Key: Name
           Value: PB - JUN 2025
@@ -185,12 +185,11 @@ Resources:
 
 
 
-
 Outputs:
   InstanceId:
-    Description: O ID da instância EC2 criada.
+    Description: O ID da instancia EC2 criada.
     Value: !Ref WebServerInstance
 
   PublicIp:
-    Description: O IP público da instância EC2.
+    Description: O IP publico da instancia EC2.
     Value: !GetAtt WebServerInstance.PublicIp

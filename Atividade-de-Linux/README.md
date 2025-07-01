@@ -8,7 +8,7 @@ Nesse projeto, eu (Arthur Guimarães Elleres) pude aprender como fazer uma inst�
 
 Para criar uma rede VPC dentro da AWS, pode se utilizar a interface gráfica da AWS, que exige poucos passos para configurar a VPC e as configurações são bem claras. Conforme a **Figura 1**, todas as configurações que são necessárias para utilizar vem como padrão, portanto, não é necessário fazer alterações. Cheque se você precisa da quantidade de sub-redes que vem por padrão, caso contrário, você pode diminuir.
 
-![Criação de VPC](./fotos/create_vpc.png)
+![Criação de VPC](./fotos/create_VPC.png)
 *Figura 1: Criação de VPC*
 
 Depois de criar a VPC, é necessário criar uma instância EC2, que também é bem simples, visto que a interface da AWS possui bastante clareza. A parte mais importante é colocar as **tags de forma apropriada** (conforme a Patrícia instruiu), definir a imagem do sistema operacional e selecionar a VPC (com uma sub-rede pública que foi configurada anteriormente) correta. Além disso, é necessário ajustar algumas regras de segurança para permitir a conexão por meio de SSH (porta 22) e solicitações HTTP (porta 80).
