@@ -9,3 +9,5 @@ else
   echo "($TIMESTAMP) Erro no servidor"
   /home/ubuntu/telegram-bot/send-message.sh
 fi
+
+https://github.com/Elleres/PB-JUN-2025-Atividade-de-Linux/blob/main/Atividade-de-Linux/README.md
