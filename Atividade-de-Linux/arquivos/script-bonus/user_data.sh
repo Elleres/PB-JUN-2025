@@ -20,17 +20,15 @@ sudo apt install nginx
 #Removendo arquivo padrão de configuração Nginx
 sudo rm /etc/nginx/conf.d/default.conf
 
-# Dado site_inicial.conf
-ARQUIVO_SITE_INICIAL="
+
+# Criando arquivos de configuração
+sudo tee /etc/nginx/conf.d/site_inicial.conf > /dev/null << 'FINAL_ARQUIVO'
 server {
 	location / {
 		root /data/www;
 	}
 }
-"
-
-# Criando arquivos de configuração
-sudo sh -c "echo \"$ARQUIVO_SITE_INICIAL\" > /etc/nginx/conf.d/site_inicial.conf "
+FINAL_ARQUIVO
 
 # Criando pasta de arquivos que será servida
 sudo mkdir -p /data/www/
@@ -43,13 +41,11 @@ sudo chmod -R 755 /data/
 sudo mkdir -p /etc/systemd/system/nginx.service.d
 
 # Criação do arquivo override pra reiniciar o nginx quando o serviço parar de funcionar.
-ARQUIVO_OVERRIDE="
+sudo tee /etc/systemd/system/nginx.service.d/override.conf > /dev/null << 'FINAL_ARQUIVO'
 [Service]
 Restart=on-failure
 RestartSec=5s
-"
-
-sudo sh -c "echo \"$ARQUIVO_OVERRIDE\" > /etc/systemd/system/nginx.service.d/override.conf"
+FINAL_ARQUIVO
 
 # Reiniciando o systemctl
 sudo systemctl daemon-reload
