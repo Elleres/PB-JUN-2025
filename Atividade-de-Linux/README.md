@@ -226,3 +226,6 @@ Para testar o timer, irei printar primeiramente o horário atual da máquina e e
 
 ![](./fotos/teste-sentinela-nginx.timer.png)
 *Figura 15: Execução dos comandos para testar o sentinela-nginx.timer.*
+
+## Desafios bônus
+Para documentar os desafios bônus, criei o arquivo [Desafio-Bonus.md](/Atividade-de-Linux/arquivos/script-bonus/Desafio-Bonus.md). Lá você verá o passo a passo para executar tais desafios.
