@@ -1,12 +1,21 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: Um template CloudFormation para criar uma instância EC2 com Nginx.
-  
+
 Resources:
+  EC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - EC2WebServerInstanceProfile
+      Path: /
+
   WebServerInstance:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: ami-0d1b5a8c13042c939
       InstanceType: t2.micro
+      IamInstanceProfile: !Ref EC2InstanceProfile # Anexa o Instance Profile à instância EC2
+
       NetworkInterfaces:
         - AssociatePublicIpAddress: true
           DeviceIndex: '0'
@@ -110,7 +119,6 @@ Resources:
         fi
         FINAL_ARQUIVO
 
-        # Coleta variáveis de ambiente
 
         sudo tee /etc/sentinela-nginx/telegram-bot/send-message.sh > /dev/null <<'FINAL_ARQUIVO'
         #!/bin/bash
