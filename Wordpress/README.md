@@ -161,7 +161,7 @@ Após clicar, você preenche os dados para criar conforme a imagem abaixo. E cli
 ## Etapa 8: Criação do Launch Template.
 Com a imagem em mãos, podemos criar um Launch Template. Entre em EC2 > Launch templates > Create launch template. Preencha com o nome e escolha a imagem que criamos no passo anterior.
 
-Selecione o tipo de instância t2.micro. Sua configuração deve ficar dessa forma:
+Selecione o tipo de instância t2.micro. Além disso, coloque uma chave SSH (de preferência a mesma chave que você usou para configurar a bastion) para caso você precise fazer alguma alteração direto na máquina. Sua configuração deve ficar dessa forma:
 
 ![Create launch template](./arquivos/image-15.png)
 
