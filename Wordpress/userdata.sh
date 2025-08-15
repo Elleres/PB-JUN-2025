@@ -1,17 +1,22 @@
 #!/bin/bash
 
-FILE_SYSTEM_ID="fs-09fc5159b3bb0693b"
+apt-get update -y
+apt-get install -y unzip nfs-common ca-certificates curl gnupg lsb-release
+
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+./aws/install
+
+FILE_SYSTEM_DNS_NAME="dns_do_seu_file_system"
 DB_HOST="rds-endpoint"
-DB_USER="admin"
-DB_PASS="DbAtTesteProjeto2"
+DB_USER=$(aws ssm get-parameter --name "RDS-Wordpress-User" --with-decryption --query "Parameter.Value" --output text)
+DB_PASS=$(aws ssm get-parameter --name "RDS-Wordpress-Password" --with-decryption --query "Parameter.Value" --output text)
 DB_NAME="wordpress"
 WP_URL="http://meu-loadbalancer-dns"
 
-apt-get update -y
-apt-get install -y amazon-efs-utils nfs-common ca-certificates curl gnupg lsb-release
 
-mkdir -p /mnt/efs/fs1
-echo "${FILE_SYSTEM_ID}.efs.us-east-1.amazonaws.com:/ /mnt/efs/fs1 nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport,_netdev 0 0" >> /etc/fstab
+sudo mkdir -p /mnt/efs/fs1
+echo "${FILE_SYSTEM_DNS_NAME}:/ /mnt/efs/fs1 nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport,_netdev 0 0" >> /etc/fstab
 mount -a
 
 install -m 0755 -d /etc/apt/keyrings

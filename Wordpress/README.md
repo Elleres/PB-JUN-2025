@@ -15,15 +15,15 @@ E usaremos os seguintes serviços da AWS:
 - Auto Scaling group
 - EC2
 
-## Etapa 0: Criação do perfil IAM
+## Etapa 1: Criação do perfil IAM
 
-Para que a instância da EC2 possa montar o EFS, ela precisa ter permissão. Para isso, vamos criar uma função. Para isso, vá para IAM > Roles > Create Role. Selecione Trusted Entity Type: AWS Service e selecione EC2. 
+Precisamos criar um perfil para que a instância EC2 possa acessas segredos do Parameter Store e montar o EFS. Para isso, vamos criar uma função. Vá para IAM > Roles > Create Role. Selecione Trusted Entity Type: AWS Service e selecione EC2. 
 
 Adicione um nome e finalize a criação sem adicionar permissões ainda, vamos adicionar uma inline depois.
 
 Agora entre em IAM > Roles e procure a role que criamos agora, clique na role pra abrir ela. Depois, clique em add permissions e Create Inline Policy.
 
-![alt text](./arquivos/image-28.png)
+![](./arquivos/image-28.png)
 
 Ao entrar na página, selecione a edição por JSON e copie o conteúdo do arquivo inline-policy.json para dentro do editor. Vá para o próximo passo e coloque um nome adequado para a permissão.
 
@@ -31,7 +31,16 @@ Ao entrar na página, selecione a edição por JSON e copie o conteúdo do arqui
 
 Agora estamos prontos para começar a implantar os serviços.
 
-## Etapa 1: Criação e configuração da VPC
+## Etapa 2: Criação de Segredos
+
+Para criar segredos, entre em AWS Systems Manager > Parameter Store > Create Parameter. Aqui você vai escolher a senha do banco de dados que vamos criar futuramente, então salve essa senha em algum lugar para usar depois. Configure conforme a imagem abaixo, alterando a senha.
+
+![](./arquivos/image-32.png)
+
+Além disso, crie a variável para o nome o usuário do banco de dados.
+
+
+## Etapa 3: Criação e configuração da VPC
 
 É necessário criar uma VPC com seis subnets, sendo quatro privadas e duas públicas. Para isso, entre no painel da AWS e procure por VPC. Entre no dashboard de VPC. Por hora, devemos deixar a opção de NAT gateway desativada, vou ativar mais pra frente para evitar custos adicionais enquanto fazemos as configurações básicas.
 
@@ -63,7 +72,7 @@ Após a criação do NAT Gateway, precisamos configurar as route tables para red
 
 ![](./arquivos/image-26.png)
 
-## Etapa 2: Criação do RDS
+## Etapa 4: Criação do RDS
 
 Antes de criar uma instância da RDS, é necessário criar um grupo de subnets, que é basicamente onde a instância estará disponível. Conforme o diagrama, a instância deverá estar em uma subnet privada isolada (selecione as duas subnets que restaram, as que não tem acesso a internet). Para isso, basta entrar no dashboard do RDS e selecionar Create DB Subnet Group. A AWS te obriga a criar em duas AZ diferente, portanto, terei de fazer uma sutil alteração do projeto do diagrama . Seu grupo deve ficar conforme a imagem abaixo.
 
@@ -72,8 +81,8 @@ Antes de criar uma instância da RDS, é necessário criar um grupo de subnets, 
 Após a criação do grupo, podemos criar o RDS. A configuração é bem simples, você deve ir para o dashboard Aurora e RDS, clicar na opção de criar um database. Na interface de criação, você deve selecionar a opção Standard create e a engine MySQL. Além disso, você deve selecionar a opção free tier. Como a tarefa pediu, selecionei a opção de single-AZ. Após isso, basta configurar as informações do banco de dados. É recomendado utilizar as seguintes variaveis:
 
 - DB instance identifier: wordpress
-- Master username: admin
-- Master password: DbAtTesteProjeto2
+- Master username: Utilizar o usuário que froi criado no parameter store.
+- Master password: Utilizar a senha que foi criada no parameter store.
 
 
 Caso você decida alterar essas variáveis será importante alterar no docker-compose em um passo futuro, para garantir que o WordPress seja capaz de se conectar com o banco corretamente. Além disso, você deve usar uma instância do tipo db.t3.micro.
@@ -89,7 +98,7 @@ Após criar o banco, precisamos configurar o security group do RDS. Para isso, v
 
 ![Alterando SG RDS](./arquivos/image-10.png)
 
-## Etapa 3: Criação do EFS
+## Etapa 5: Criação do EFS
 
 Para criar o EFS, você deve procurar na barra de pesquisa "EFS". Ao entrar na página, você deve clicar em Create File system e colocar o nome desejado (recomendo seguir o da imagem abaixo para evitar problemas). Selecione a VPC que foi criada anteriormente.
 
@@ -104,7 +113,7 @@ Além disso, devemos selecionar o security group que criamos para o EFS mais ced
 ![Criação dos mount targets](./arquivos/image-8.png)
 
 
-## Etapa 4: Criação do target group
+## Etapa 6: Criação do target group
 Vamos criar o load balancer agora, pois precisamos do DNS do load balancer pra configurar corretamente o Wordpress (evitar problemas com DNS).
 
 Antes de criar o load balancer, precisamos criar um target group. Para isso, vá em EC2 > Target Groups. Clique em criar target group.
@@ -115,7 +124,7 @@ Coloque um nome, a VPC criada e coloque a rota /health.html no health check path
 
 Vá para o próximo passo e finalize o target group (não selecione instância ainda).
 
-## Etapa 5: Criação do load balancer
+## Etapa 7: Criação do load balancer
 
 Entre em EC2 > Load balancers > Create load balancer. Selecione Application Load Balancer.
 
@@ -131,7 +140,7 @@ Por final, clique em criar load balancer.
 
 Espere a finalização da criação do load balancer e copie o DNS dele. Você vai precisar disso para configurar o docker-compose.
 
-## Etapa 6: Criação da EC2
+## Etapa 8: Criação da EC2
 
 Para criar as instâncias, decidi criar uma imagem que contenha o docker instalado e tudo configurado para facilitar o uso do autoscaling.
 
@@ -143,12 +152,14 @@ Por hora, vamos colocar essa instância em uma subnet pública, assim, poderemos
 
 ![Network config ec2](./arquivos/image-6.png)
 
-Insira o userdata.sh no campo do userdata na aws. É importante você substituir os dados do docker-compose que está dentro do user data pelos seus dados, principalmente o campo meu-loadbalancer-dns.
+Após configurar a rede, você deve selecionar o IAM Instance Profile para o que criamos no passo 1.
+
+Insira o userdata.sh no campo do userdata na aws. É importante você substituir os dados do docker-compose que está dentro do user data pelos seus dados, principalmente o campo meu-loadbalancer-dns e o DNS do EFS.
 
 **NÃO ESQUEÇA DE ALTERAR AS VARIÁVEIS!!**
 ![](./arquivos/image-30.png)
 
-## Etapa 7: Criação da AMI
+## Etapa 9: Criação da AMI
 
 Agora que configuramos a máquina corretamente, podemos criar uma imagem baseada nessa EC2. Para isso, entre em EC2 > Instances e selecione a instância que fizemos as mudanças.
 
@@ -158,7 +169,7 @@ Após clicar, você preenche os dados para criar conforme a imagem abaixo. E cli
 
 ![Create AMI Config](./arquivos/image-14.png)
 
-## Etapa 8: Criação do Launch Template.
+## Etapa 10: Criação do Launch Template.
 Com a imagem em mãos, podemos criar um Launch Template. Entre em EC2 > Launch templates > Create launch template. Preencha com o nome e escolha a imagem que criamos no passo anterior.
 
 Selecione o tipo de instância t2.micro. Além disso, coloque uma chave SSH (de preferência a mesma chave que você usou para configurar a bastion) para caso você precise fazer alguma alteração direto na máquina. Sua configuração deve ficar dessa forma:
@@ -168,7 +179,7 @@ Selecione o tipo de instância t2.micro. Além disso, coloque uma chave SSH (de 
 Por último, você deve associar a função que criamos na Etapa 0. Vá até o final da página e selecione em configurações adicionais.
 
 ![alt text](./arquivos/image-31.png)
-## Etapa 9: Criação do autoscaling group
+## Etapa 11: Criação do autoscaling group
 
 Para criar o ASG, você deve entrar em EC2 > Auto Scaling groups > Create Auto Scaling group. Preencha com um nome e selecione o template que criamos no passo anterior. Clique em próximo.
 
@@ -184,7 +195,7 @@ Você pode ir para o passo 4. Lá você irá configurar a scaling policy, onde o
 
 Por fim, clique em ir para revisão e finalize a criação do ASG.
 
-## Etapa 10: Teste!
+## Etapa 12: Teste!
 
 Para testar se sua infraestrutura está funcionando, você deve acessar o DNS do load balancer. Se tudo estiver funcionando, o site do wordpress deverá aparecer lhe dando a opção de criar uma conta.
 

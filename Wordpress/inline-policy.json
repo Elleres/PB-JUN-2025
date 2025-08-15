@@ -20,6 +20,16 @@
                 "ec2:DescribeAvailabilityZones"
             ],
             "Resource": "*"
+        },
+        {
+            "Sid": "SecretStore",
+            "Effect": "Allow",
+            "Action": [
+                "ssm:Describe*",
+                "ssm:Get*",
+                "ssm:List*"
+            ],
+            "Resource": "*"
         }
     ]
 }

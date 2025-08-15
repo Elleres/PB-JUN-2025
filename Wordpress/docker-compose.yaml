@@ -6,9 +6,9 @@ services:
     ports:
       - "80:80"
     environment:
-      WORDPRESS_DB_HOST: wordpress.c0b2im0omtej.us-east-1.rds.amazonaws.com
-      WORDPRESS_DB_USER: admin
-      WORDPRESS_DB_PASSWORD: DbAtTesteProjeto2
+      WORDPRESS_DB_HOST: SeuRDSEndpoint
+      WORDPRESS_DB_USER: SeuUsuario
+      WORDPRESS_DB_PASSWORD: SuaSenha
       WORDPRESS_DB_NAME: wordpress
       WORDPRESS_CONFIG_EXTRA: |
         define('WP_HOME', 'http://meu-loadbalancer-dns');
